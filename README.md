@@ -1,209 +1,209 @@
 # AlgaMoney API
 
-API RESTful para gerenciamento financeiro pessoal desenvolvida com Spring Boot.
+RESTful API for personal financial management developed with Spring Boot.
 
-## 📋 Sobre o Projeto
+## 📋 About the Project
 
-AlgaMoney é uma aplicação de controle financeiro que permite gerenciar:
-- **Categorias**: Organização de despesas e receitas
-- **Pessoas**: Cadastro de contatos
-- **Lançamentos**: Registro de transações financeiras (receitas e despesas)
+AlgaMoney is a financial control application that allows you to manage:
+- **Categories**: Organization of expenses and income
+- **People**: Contact management
+- **Entries**: Financial transaction records (income and expenses)
 
-## 🚀 Tecnologias
+## 🚀 Technologies
 
 - **Java 17**
 - **Spring Boot 3.2.1**
 - **Spring Data JPA**
 - **Spring Security** (Basic Auth)
 - **MySQL 8.0**
-- **Flyway** (Migrações de banco de dados)
+- **Flyway** (Database migrations)
 - **Maven**
 - **Docker & Docker Compose**
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 algamoney-api/
-├── docker/                          # Arquivos Docker
-│   ├── Dockerfile                   # Imagem da aplicação
-│   ├── docker-compose.yml           # Orquestração de serviços
-│   ├── .dockerignore               # Arquivos ignorados no build
-│   └── README-DOCKER.md            # Guia completo do Docker
-├── postman/                         # Coleção e ambientes Postman
+├── docker/                          # Docker files
+│   ├── Dockerfile                   # Application image
+│   ├── docker-compose.yml           # Service orchestration
+│   ├── .dockerignore               # Files ignored in build
+│   └── README-DOCKER.md            # Complete Docker guide
+├── postman/                         # Postman collection and environments
 │   ├── AlgaMoney-API.postman_collection.json
 │   ├── AlgaMoney-Docker.postman_environment.json
 │   ├── AlgaMoney-Development.postman_environment.json
 │   ├── AlgaMoney-Production.postman_environment.json
-│   └── POSTMAN-GUIDE.md            # Guia de testes com Postman
-├── src/                            # Código fonte
+│   └── POSTMAN-GUIDE.md            # Postman testing guide
+├── src/                            # Source code
 │   ├── main/
-│   │   ├── java/                   # Classes Java
-│   │   └── resources/              # Arquivos de configuração
-│   └── test/                       # Testes
-├── pom.xml                         # Configuração Maven
-└── README.md                       # Este arquivo
+│   │   ├── java/                   # Java classes
+│   │   └── resources/              # Configuration files
+│   └── test/                       # Tests
+├── pom.xml                         # Maven configuration
+└── README.md                       # This file
 ```
 
-## 🐳 Início Rápido com Docker
+## 🐳 Quick Start with Docker
 
-### Pré-requisitos
+### Prerequisites
 - Docker 20.10+
 - Docker Compose 2.0+
 
-### Configuração Inicial
+### Initial Setup
 
-1. Configure as variáveis de ambiente:
+1. Configure environment variables:
 ```bash
 cd docker
 cp .env.example .env
-# Edite o arquivo .env com suas credenciais
+# Edit the .env file with your credentials
 ```
 
-2. Execute a aplicação:
+2. Run the application:
 ```bash
 docker-compose up -d
 ```
 
-A aplicação estará disponível em: http://localhost:8080
+The application will be available at: http://localhost:8080
 
-**Nota:** As credenciais do banco de dados são configuradas via variáveis de ambiente por segurança.
+**Note:** Database credentials are configured via environment variables for security.
 
-Para mais detalhes, consulte: [docker/README-DOCKER.md](docker/README-DOCKER.md)
+For more details, see: [docker/README-DOCKER.md](docker/README-DOCKER.md)
 
-### Parar a aplicação
+### Stop the application
 
 ```bash
 cd docker
 docker-compose down
 ```
 
-## 💻 Desenvolvimento Local
+## 💻 Local Development
 
-### Pré-requisitos
+### Prerequisites
 - Java 17
 - Maven 3.8+
 - MySQL 8.0
 
-### Configurar banco de dados
+### Configure database
 
 ```sql
 CREATE DATABASE algamoneyapi;
 ```
 
-### Executar a aplicação
+### Run the application
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-## 🔐 Autenticação
+## 🔐 Authentication
 
-A API utiliza **HTTP Basic Authentication**.
+The API uses **HTTP Basic Authentication**.
 
-### Usuários Padrão
+### Default Users
 
-| Usuário | Senha | Permissões |
-|---------|-------|------------|
-| admin@algamoney.com | admin | Acesso completo |
-| maria@algamoney.com | maria | Somente leitura |
+| User | Password | Permissions |
+|------|----------|------------|
+| admin@algamoney.com | admin | Full access |
+| maria@algamoney.com | maria | Read only |
 
-## 📡 Endpoints da API
+## 📡 API Endpoints
 
-### Categorias
-- `GET /categorias` - Listar todas as categorias
-- `GET /categorias/{id}` - Buscar categoria por ID
-- `POST /categorias` - Criar nova categoria
+### Categories
+- `GET /categorias` - List all categories
+- `GET /categorias/{id}` - Get category by ID
+- `POST /categorias` - Create new category
 
-### Pessoas
-- `GET /pessoas` - Listar pessoas (paginado)
-- `GET /pessoas/{id}` - Buscar pessoa por ID
-- `POST /pessoas` - Criar nova pessoa
-- `PUT /pessoas/{id}` - Atualizar pessoa
-- `PUT /pessoas/{id}/ativo` - Atualizar status ativo
-- `DELETE /pessoas/{id}` - Remover pessoa
+### People
+- `GET /pessoas` - List people (paginated)
+- `GET /pessoas/{id}` - Get person by ID
+- `POST /pessoas` - Create new person
+- `PUT /pessoas/{id}` - Update person
+- `PUT /pessoas/{id}/ativo` - Update active status
+- `DELETE /pessoas/{id}` - Remove person
 
-### Lançamentos
-- `GET /lancamentos` - Listar lançamentos (paginado)
-- `GET /lancamentos?resumo` - Resumo de lançamentos
-- `GET /lancamentos/{id}` - Buscar lançamento por ID
-- `POST /lancamentos` - Criar novo lançamento
-- `PUT /lancamentos/{id}` - Atualizar lançamento
-- `DELETE /lancamentos/{id}` - Remover lançamento
+### Entries
+- `GET /lancamentos` - List entries (paginated)
+- `GET /lancamentos?resumo` - Entries summary
+- `GET /lancamentos/{id}` - Get entry by ID
+- `POST /lancamentos` - Create new entry
+- `PUT /lancamentos/{id}` - Update entry
+- `DELETE /lancamentos/{id}` - Remove entry
 
-### Saúde
-- `GET /actuator/health` - Status da aplicação
+### Health
+- `GET /actuator/health` - Application status
 
-## 🧪 Testes com Postman
+## 🧪 Testing with Postman
 
-Importar a coleção e ambientes do Postman:
+Import the collection and Postman environments:
 
-1. Abrir Postman
-2. Importar arquivos da pasta `postman/`:
+1. Open Postman
+2. Import files from `postman/` folder:
    - `AlgaMoney-API.postman_collection.json`
    - `AlgaMoney-Docker.postman_environment.json`
-3. Selecionar o ambiente "AlgaMoney - Docker"
-4. Executar as requisições
+3. Select the "AlgaMoney - Docker" environment
+4. Execute the requests
 
-Para mais detalhes, consulte: [postman/POSTMAN-GUIDE.md](postman/POSTMAN-GUIDE.md)
+For more details, see: [postman/POSTMAN-GUIDE.md](postman/POSTMAN-GUIDE.md)
 
-### Exemplo de Requisição
+### Request Example
 
 ```bash
-# Listar categorias
+# List categories
 curl -u admin@algamoney.com:admin http://localhost:8080/categorias
 
-# Criar categoria
+# Create category
 curl -u admin@algamoney.com:admin \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Transporte"}' \
+  -d '{"nome":"Transportation"}' \
   http://localhost:8080/categorias
 ```
 
-## 🗄️ Banco de Dados
+## 🗄️ Database
 
-### Migrações Flyway
+### Flyway Migrations
 
-As migrações são executadas automaticamente na inicialização:
+Migrations are executed automatically on startup:
 
-1. `V01__criar_e_registrar_categorias.sql` - Tabela de categorias
-2. `V02__criar_e_registrar_pessoas.sql` - Tabela de pessoas
-3. `V03__criar_e_registrar_lancamentos.sql` - Tabela de lançamentos
-4. `V04__criar_e_registrar_usuarios_e_permissoes.sql` - Usuários e permissões
+1. `V01__criar_e_registrar_categorias.sql` - Categories table
+2. `V02__criar_e_registrar_pessoas.sql` - People table
+3. `V03__criar_e_registrar_lancamentos.sql` - Entries table
+4. `V04__criar_e_registrar_usuarios_e_permissoes.sql` - Users and permissions
 
-### Dados Iniciais
+### Initial Data
 
-**Categorias (5)**:
-- Lazer
-- Alimentação
-- Supermercado
-- Farmácia
-- Outros
+**Categories (5)**:
+- Leisure
+- Food
+- Supermarket
+- Pharmacy
+- Others
 
-**Pessoas (1)**:
+**People (1)**:
 - João Silva
 
-**Lançamentos (6)**:
-- Mix de receitas e despesas
+**Entries (6)**:
+- Mix of income and expenses
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### Perfis do Spring
+### Spring Profiles
 
-- `basic-security`: Autenticação básica (padrão)
-- `docker`: Configurações para ambiente Docker
-- `oauth-security`: OAuth2 (arquivos .old - requer implementação)
+- `basic-security`: Basic authentication (default)
+- `docker`: Docker environment settings
+- `oauth-security`: OAuth2 (.old files - requires implementation)
 
-### Propriedades
+### Properties
 
-Principais arquivos de configuração:
-- `application.properties` - Configuração padrão
-- `application-docker.properties` - Configuração Docker
+Main configuration files:
+- `application.properties` - Default configuration
+- `application-docker.properties` - Docker configuration
 
-## 🚢 Deploy
+## 🚢 Deployment
 
 ### Heroku
 
-A aplicação está configurada para deploy no Heroku:
+The application is configured for Heroku deployment:
 
 ```bash
 git push heroku master
@@ -222,81 +222,81 @@ docker-compose up -d --build
 
 ```bash
 cd docker
-docker-compose logs -f app      # Logs da aplicação
-docker-compose logs -f mysql    # Logs do MySQL
+docker-compose logs -f app      # Application logs
+docker-compose logs -f mysql    # MySQL logs
 ```
 
-### Desenvolvimento Local
+### Local Development
 
-Os logs são exibidos no console durante a execução.
+Logs are displayed in the console during execution.
 
-## 🛡️ Segurança
+## 🛡️ Security
 
-⚠️ **Importante**: As configurações atuais são para desenvolvimento/teste.
+⚠️ **Important**: Current settings are for development/testing.
 
-**Para Produção:**
-- Alterar senhas padrão
-- Configurar HTTPS
-- Implementar OAuth2/JWT
-- Usar variáveis de ambiente para credenciais
-- Configurar CORS adequadamente
-- Usar gerenciador de segredos
+**For Production:**
+- Change default passwords
+- Configure HTTPS
+- Implement OAuth2/JWT
+- Use environment variables for credentials
+- Configure CORS appropriately
+- Use secrets manager
 
 ## 🐛 Troubleshooting
 
-### Aplicação não inicia
+### Application won't start
 
 ```bash
-# Verificar logs
+# Check logs
 cd docker
 docker-compose logs app
 
-# Reiniciar serviços
+# Restart services
 docker-compose restart
 ```
 
-### Erro de conexão com banco
+### Database connection error
 
 ```bash
-# Verificar se o MySQL está rodando
+# Check if MySQL is running
 docker-compose ps
 
-# Verificar logs do MySQL
+# Check MySQL logs
 docker-compose logs mysql
 ```
 
-### Porta 8080 em uso
+### Port 8080 in use
 
-Editar `docker/docker-compose.yml`:
+Edit `docker/docker-compose.yml`:
 ```yaml
 ports:
-  - "8081:8080"  # Usar porta 8081 externamente
+  - "8081:8080"  # Use port 8081 externally
 ```
 
-## 📚 Documentação Adicional
+## 📚 Additional Documentation
 
 - **Docker Setup**: [docker/README-DOCKER.md](docker/README-DOCKER.md)
 - **Postman Testing**: [postman/POSTMAN-GUIDE.md](postman/POSTMAN-GUIDE.md)
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/MyFeature`)
+3. Commit your changes (`git commit -m 'Add MyFeature'`)
+4. Push to the branch (`git push origin feature/MyFeature`)
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-Este projeto foi desenvolvido para fins educacionais.
+This project was developed for educational purposes.
 
-## 👥 Autores
+## 👥 Authors
 
-- Desenvolvido como parte do curso AlgaWorks
-- Migrado para Spring Boot 3.x e Java 17
-- Containerizado com Docker
+- Developed as part of the AlgaWorks course
+- Migrated to Spring Boot 3.x and Java 17
+- Containerized with Docker
 
-## 🔗 Links Úteis
+## 🔗 Useful Links
 
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
 - [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
@@ -306,4 +306,4 @@ Este projeto foi desenvolvido para fins educacionais.
 
 ---
 
-**🤖 Projeto atualizado com [Claude Code](https://claude.com/claude-code)**
+**🤖 Project updated with [Claude Code](https://claude.com/claude-code)**

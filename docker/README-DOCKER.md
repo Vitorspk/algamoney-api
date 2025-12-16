@@ -1,308 +1,308 @@
 # AlgaMoney API - Docker Setup
 
-Este guia mostra como executar a aplicação AlgaMoney API usando Docker e Docker Compose.
+This guide shows how to run the AlgaMoney API application using Docker and Docker Compose.
 
-> **📁 Localização**: Este arquivo está em `docker/`. Todos os comandos docker-compose devem ser executados desta pasta ou especificando o caminho do arquivo: `docker-compose -f docker/docker-compose.yml`
+> **📁 Location**: This file is in `docker/`. All docker-compose commands must be executed from this folder or by specifying the file path: `docker-compose -f docker/docker-compose.yml`
 
-## Pré-requisitos
+## Prerequisites
 
-- Docker instalado (versão 20.10 ou superior)
-- Docker Compose instalado (versão 2.0 ou superior)
+- Docker installed (version 20.10 or higher)
+- Docker Compose installed (version 2.0 or higher)
 
-Para verificar se estão instalados:
+To check if they are installed:
 ```bash
 docker --version
 docker-compose --version
 ```
 
-## Arquitetura
+## Architecture
 
-O ambiente Docker contém:
-- **MySQL 8.0**: Banco de dados
-- **AlgaMoney API**: Aplicação Spring Boot rodando em Java 17
+The Docker environment contains:
+- **MySQL 8.0**: Database
+- **AlgaMoney API**: Spring Boot application running on Java 17
 
-## Configuração
+## Configuration
 
-### Variáveis de Ambiente
+### Environment Variables
 
-Por segurança, as credenciais do banco de dados são configuradas através de variáveis de ambiente.
+For security, database credentials are configured through environment variables.
 
-**Setup inicial:**
+**Initial setup:**
 
-1. Copie o arquivo de exemplo:
+1. Copy the example file:
 ```bash
 cd docker
 cp .env.example .env
 ```
 
-2. Edite o arquivo `.env` e defina suas senhas:
+2. Edit the `.env` file and set your passwords:
 ```bash
-MYSQL_ROOT_PASSWORD=sua_senha_aqui
-SPRING_DATASOURCE_PASSWORD=sua_senha_aqui
+MYSQL_ROOT_PASSWORD=your_password_here
+SPRING_DATASOURCE_PASSWORD=your_password_here
 ```
 
-**Importante:**
-- O arquivo `.env` está no `.gitignore` e **nunca será commitado**
-- Use senhas fortes para ambientes de produção
-- Para desenvolvimento local, você pode usar senhas simples
+**Important:**
+- The `.env` file is in `.gitignore` and will **never be committed**
+- Use strong passwords for production environments
+- For local development, you can use simple passwords
 
-## Como usar
+## How to use
 
-### 1. Subir a aplicação
+### 1. Start the application
 
-Navegue até a pasta docker e execute:
+Navigate to the docker folder and run:
 
 ```bash
 docker-compose up -d
 ```
 
-Este comando irá:
-1. Construir a imagem Docker da aplicação
-2. Baixar a imagem do MySQL
-3. Criar a rede e volumes necessários
-4. Iniciar os containers
+This command will:
+1. Build the Docker image of the application
+2. Download the MySQL image
+3. Create the necessary network and volumes
+4. Start the containers
 
-### 2. Acompanhar os logs
+### 2. Follow the logs
 
-Para ver os logs da aplicação:
+To see the application logs:
 ```bash
 docker-compose logs -f app
 ```
 
-Para ver os logs do MySQL:
+To see MySQL logs:
 ```bash
 docker-compose logs -f mysql
 ```
 
-Para ver todos os logs:
+To see all logs:
 ```bash
 docker-compose logs -f
 ```
 
-### 3. Verificar status
+### 3. Check status
 
 ```bash
 docker-compose ps
 ```
 
-Você deve ver algo como:
+You should see something like:
 ```
 NAME                IMAGE               STATUS              PORTS
 algamoney-api       algamoney-api       Up (healthy)        0.0.0.0:8080->8080/tcp
 algamoney-mysql     mysql:8.0           Up (healthy)        0.0.0.0:3306->3306/tcp
 ```
 
-### 4. Testar a aplicação
+### 4. Test the application
 
-A aplicação estará disponível em:
+The application will be available at:
 - **API**: http://localhost:8080
 - **Health Check**: http://localhost:8080/actuator/health
 
-Teste com curl:
+Test with curl:
 ```bash
 # Health check
 curl http://localhost:8080/actuator/health
 
-# Listar categorias (requer autenticação)
+# List categories (requires authentication)
 curl -u admin@algamoney.com:admin http://localhost:8080/categorias
 ```
 
-### 5. Acessar o banco de dados
+### 5. Access the database
 
-Para conectar ao MySQL:
+To connect to MySQL:
 ```bash
-docker exec -it algamoney-mysql mysql -uroot -p  algamoneyapi
+docker exec -it algamoney-mysql mysql -uroot -p algamoneyapi
 ```
 
-Ou use uma ferramenta GUI (DBeaver, MySQL Workbench, etc.) com:
+Or use a GUI tool (DBeaver, MySQL Workbench, etc.) with:
 - **Host**: localhost
 - **Port**: 3306
 - **Database**: algamoneyapi
 - **Username**: root
-- **Password**: 
+- **Password**: <your_password_from_env>
 
-## Comandos úteis
+## Useful commands
 
-### Parar os containers
+### Stop containers
 ```bash
 docker-compose stop
 ```
 
-### Parar e remover os containers
+### Stop and remove containers
 ```bash
 docker-compose down
 ```
 
-### Parar, remover containers e volumes (apaga os dados do banco)
+### Stop, remove containers and volumes (deletes database data)
 ```bash
 docker-compose down -v
 ```
 
-### Rebuild da aplicação
-Se você fez alterações no código:
+### Rebuild the application
+If you made changes to the code:
 ```bash
 docker-compose up -d --build
 ```
 
-### Ver logs em tempo real de um serviço específico
+### View real-time logs from a specific service
 ```bash
 docker-compose logs -f app
 ```
 
-### Executar comandos dentro do container
+### Execute commands inside the container
 ```bash
-# Shell no container da aplicação
+# Shell in the application container
 docker exec -it algamoney-api sh
 
-# Shell no container do MySQL
+# Shell in the MySQL container
 docker exec -it algamoney-mysql bash
 ```
 
-### Reiniciar um serviço específico
+### Restart a specific service
 ```bash
 docker-compose restart app
 ```
 
 ## Troubleshooting
 
-### A aplicação não inicia
+### Application won't start
 
-1. Verifique os logs:
+1. Check the logs:
    ```bash
    docker-compose logs app
    ```
 
-2. Verifique se o MySQL está saudável:
+2. Check if MySQL is healthy:
    ```bash
    docker-compose ps
    ```
 
-3. Se o MySQL não estiver healthy, reinicie:
+3. If MySQL is not healthy, restart:
    ```bash
    docker-compose restart mysql
    ```
 
-### Erro de conexão com banco de dados
+### Database connection error
 
-1. Verifique se o MySQL está rodando:
+1. Check if MySQL is running:
    ```bash
    docker-compose ps mysql
    ```
 
-2. Verifique os logs do MySQL:
+2. Check MySQL logs:
    ```bash
    docker-compose logs mysql
    ```
 
-3. Tente reiniciar os serviços:
+3. Try restarting services:
    ```bash
    docker-compose restart
    ```
 
-### Porta 8080 ou 3306 já está em uso
+### Port 8080 or 3306 already in use
 
-Se você já tem algum serviço rodando nessas portas, edite o `docker-compose.yml` e altere o mapeamento de portas:
+If you already have a service running on these ports, edit the `docker-compose.yml` and change the port mapping:
 
 ```yaml
 ports:
-  - "8081:8080"  # Muda a porta externa para 8081
+  - "8081:8080"  # Changes external port to 8081
 ```
 
-### Limpar tudo e começar do zero
+### Clean everything and start from scratch
 
 ```bash
-# Para todos os containers
+# Stop all containers
 docker-compose down
 
-# Remove volumes (dados do banco serão perdidos)
+# Remove volumes (database data will be lost)
 docker-compose down -v
 
-# Remove imagens
+# Remove images
 docker rmi algamoney-api_app mysql:8.0
 
-# Sobe novamente
+# Start again
 docker-compose up -d --build
 ```
 
-## Variáveis de Ambiente
+## Environment Variables
 
-As variáveis são configuradas através do arquivo `.env` no diretório `docker/`.
+Variables are configured through the `.env` file in the `docker/` directory.
 
-**Variáveis disponíveis:**
+**Available variables:**
 
-| Variável | Descrição | Valor Padrão |
-|----------|-----------|--------------|
-| `MYSQL_ROOT_PASSWORD` | Senha do root do MySQL | (obrigatório) |
-| `MYSQL_DATABASE` | Nome do banco de dados | `algamoneyapi` |
-| `SPRING_DATASOURCE_URL` | URL de conexão JDBC | (configurado no .env.example) |
-| `SPRING_DATASOURCE_USERNAME` | Usuário do banco | `root` |
-| `SPRING_DATASOURCE_PASSWORD` | Senha do banco | (obrigatório) |
-| `JAVA_OPTS` | Opções da JVM | `-Xms256m -Xmx512m` |
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `MYSQL_ROOT_PASSWORD` | MySQL root password | (required) |
+| `MYSQL_DATABASE` | Database name | `algamoneyapi` |
+| `SPRING_DATASOURCE_URL` | JDBC connection URL | (configured in .env.example) |
+| `SPRING_DATASOURCE_USERNAME` | Database user | `root` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | (required) |
+| `JAVA_OPTS` | JVM options | `-Xms256m -Xmx512m` |
 
-**Para customizar:**
+**To customize:**
 
-Edite o arquivo `docker/.env`:
+Edit the `docker/.env` file:
 
 ```bash
-# Ajustar memória da JVM
+# Adjust JVM memory
 JAVA_OPTS=-Xms512m -Xmx1024m
 
-# Usar senha diferente
-MYSQL_ROOT_PASSWORD=minha_senha_segura
-SPRING_DATASOURCE_PASSWORD=minha_senha_segura
+# Use different password
+MYSQL_ROOT_PASSWORD=my_secure_password
+SPRING_DATASOURCE_PASSWORD=my_secure_password
 ```
 
-## Segurança
+## Security
 
-⚠️ **IMPORTANTE**: Este setup é para ambiente de desenvolvimento local apenas!
+⚠️ **IMPORTANT**: This setup is for local development environment only!
 
-Para produção:
-- Mude as senhas padrão
-- Use variáveis de ambiente ou secrets
+For production:
+- Change default passwords
+- Use environment variables or secrets
 - Configure SSL/TLS
-- Ajuste as configurações de segurança do Spring Security
-- Use um sistema de gerenciamento de segredos (Vault, AWS Secrets Manager, etc.)
+- Adjust Spring Security settings
+- Use a secrets management system (Vault, AWS Secrets Manager, etc.)
 
 ## Performance
 
-### Ajustar memória da JVM
+### Adjust JVM memory
 
-Edite a variável `JAVA_OPTS` no `docker-compose.yml`:
+Edit the `JAVA_OPTS` variable in `docker-compose.yml`:
 ```yaml
 JAVA_OPTS: -Xms512m -Xmx1024m
 ```
 
-### Ajustar recursos do Docker
+### Adjust Docker resources
 
-Se necessário, aumente os recursos do Docker Desktop em:
+If necessary, increase Docker Desktop resources at:
 - macOS: Docker Desktop → Preferences → Resources
 - Windows: Docker Desktop → Settings → Resources
 
-## Usuarios padrão
+## Default users
 
-Após as migrações do Flyway, os seguintes usuários estarão disponíveis:
+After Flyway migrations, the following users will be available:
 
-| Email | Senha | Permissões |
-|-------|-------|------------|
+| Email | Password | Permissions |
+|-------|----------|------------|
 | admin@algamoney.com | admin | ROLE_CADASTRAR_CATEGORIA, ROLE_PESQUISAR_CATEGORIA, ROLE_CADASTRAR_PESSOA, ROLE_REMOVER_PESSOA, ROLE_PESQUISAR_PESSOA, ROLE_CADASTRAR_LANCAMENTO, ROLE_REMOVER_LANCAMENTO, ROLE_PESQUISAR_LANCAMENTO |
 | maria@algamoney.com | maria | ROLE_PESQUISAR_CATEGORIA, ROLE_PESQUISAR_PESSOA, ROLE_PESQUISAR_LANCAMENTO |
 
-## Estrutura de arquivos Docker
+## Docker file structure
 
 ```
 .
-├── Dockerfile              # Definição da imagem da aplicação
-├── docker-compose.yml      # Orquestração dos serviços
-├── .dockerignore          # Arquivos ignorados no build
+├── Dockerfile              # Application image definition
+├── docker-compose.yml      # Service orchestration
+├── .dockerignore          # Files ignored in build
 └── src/main/resources/
-    └── application-docker.properties  # Configurações para ambiente Docker
+    └── application-docker.properties  # Docker environment settings
 ```
 
-## Próximos passos
+## Next steps
 
-- [ ] Testar todos os endpoints da API
-- [ ] Validar as migrações do Flyway
-- [ ] Configurar CORS se necessário
-- [ ] Implementar OAuth2 Authorization Server (arquivos .old)
-- [ ] Adicionar nginx como reverse proxy (opcional)
-- [ ] Configurar logs centralizados (ELK Stack, etc.)
+- [ ] Test all API endpoints
+- [ ] Validate Flyway migrations
+- [ ] Configure CORS if necessary
+- [ ] Implement OAuth2 Authorization Server (.old files)
+- [ ] Add nginx as reverse proxy (optional)
+- [ ] Configure centralized logs (ELK Stack, etc.)
