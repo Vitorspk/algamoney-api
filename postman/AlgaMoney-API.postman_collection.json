@@ -1,0 +1,498 @@
+{
+	"info": {
+		"_postman_id": "algamoney-api-collection",
+		"name": "AlgaMoney API",
+		"description": "Comprehensive collection for testing the AlgaMoney API - A financial management system\n\nAuthentication: Basic Auth\n- Admin: admin@algamoney.com / admin\n- User: maria@algamoney.com / maria",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{password}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{username}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Categorias",
+			"item": [
+				{
+					"name": "List All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categorias",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categorias"
+							]
+						},
+						"description": "Get all categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categorias/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categorias",
+								"1"
+							]
+						},
+						"description": "Get a specific category by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Nova Categoria\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categorias",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categorias"
+							]
+						},
+						"description": "Create a new category"
+					},
+					"response": []
+				}
+			],
+			"description": "Category management endpoints"
+		},
+		{
+			"name": "Pessoas",
+			"item": [
+				{
+					"name": "Search People",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pessoas?nome=%&page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "%"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Search people with pagination. Use nome parameter to filter by name."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Person by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pessoas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas",
+								"1"
+							]
+						},
+						"description": "Get a specific person by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"João Silva\",\n  \"ativo\": true,\n  \"endereco\": {\n    \"logradouro\": \"Rua das Flores\",\n    \"numero\": \"123\",\n    \"complemento\": \"Apt 45\",\n    \"bairro\": \"Centro\",\n    \"cep\": \"12345-678\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pessoas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas"
+							]
+						},
+						"description": "Create a new person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"João Silva Santos\",\n  \"ativo\": true,\n  \"endereco\": {\n    \"logradouro\": \"Rua das Flores\",\n    \"numero\": \"123\",\n    \"complemento\": \"Apt 45\",\n    \"bairro\": \"Centro\",\n    \"cep\": \"12345-678\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pessoas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas",
+								"1"
+							]
+						},
+						"description": "Update a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person Active Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "false"
+						},
+						"url": {
+							"raw": "{{base_url}}/pessoas/1/ativo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas",
+								"1",
+								"ativo"
+							]
+						},
+						"description": "Update only the active status of a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pessoas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pessoas",
+								"1"
+							]
+						},
+						"description": "Delete a person"
+					},
+					"response": []
+				}
+			],
+			"description": "Person management endpoints"
+		},
+		{
+			"name": "Lancamentos",
+			"item": [
+				{
+					"name": "Search Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lancamentos?page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "descricao",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "dataVencimentoDe",
+									"value": "2025-01-01",
+									"disabled": true
+								},
+								{
+									"key": "dataVencimentoAte",
+									"value": "2025-12-31",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Search transactions with pagination and optional filters"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lancamentos?resumo&page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos"
+							],
+							"query": [
+								{
+									"key": "resumo",
+									"value": null
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get a summary view of transactions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lancamentos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos",
+								"1"
+							]
+						},
+						"description": "Get a specific transaction by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction (Receita)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"descricao\": \"Salário\",\n  \"dataVencimento\": \"2025-12-30\",\n  \"dataPagamento\": \"2025-12-30\",\n  \"valor\": 5000.00,\n  \"tipo\": \"RECEITA\",\n  \"categoria\": {\n    \"codigo\": 1\n  },\n  \"pessoa\": {\n    \"codigo\": 1\n  },\n  \"observacao\": \"Salário mensal\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lancamentos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos"
+							]
+						},
+						"description": "Create a new income transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction (Despesa)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"descricao\": \"Conta de Luz\",\n  \"dataVencimento\": \"2025-12-15\",\n  \"dataPagamento\": null,\n  \"valor\": 150.00,\n  \"tipo\": \"DESPESA\",\n  \"categoria\": {\n    \"codigo\": 2\n  },\n  \"pessoa\": {\n    \"codigo\": 1\n  },\n  \"observacao\": \"Conta mensal\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lancamentos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos"
+							]
+						},
+						"description": "Create a new expense transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"descricao\": \"Salário Atualizado\",\n  \"dataVencimento\": \"2025-12-30\",\n  \"dataPagamento\": \"2025-12-30\",\n  \"valor\": 5500.00,\n  \"tipo\": \"RECEITA\",\n  \"categoria\": {\n    \"codigo\": 1\n  },\n  \"pessoa\": {\n    \"codigo\": 1\n  },\n  \"observacao\": \"Salário com bônus\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lancamentos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos",
+								"1"
+							]
+						},
+						"description": "Update a transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lancamentos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lancamentos",
+								"1"
+							]
+						},
+						"description": "Delete a transaction"
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction management endpoints (Income and Expenses)"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Application Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						},
+						"description": "Check application health status"
+					},
+					"response": []
+				}
+			],
+			"description": "Health check endpoints"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "admin@algamoney.com",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "admin",
+			"type": "string"
+		}
+	]
+}
