@@ -16,10 +16,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -41,10 +45,16 @@ import com.example.algamoney.api.security.UsuarioSistema;
  */
 @RestController
 @RequestMapping("/oauth")
+@Validated
 public class TokenController {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
     private static final int MILLISECONDS_PER_SECOND = 1000;
+
+    // Limites de tamanho para prevenir DoS
+    private static final int MAX_USERNAME_LENGTH = 255;
+    private static final int MAX_PASSWORD_LENGTH = 100;
+    private static final int MAX_GRANT_TYPE_LENGTH = 50;
 
     // FIX: Constructor injection com final fields
     private final AuthenticationManager authenticationManager;
@@ -68,11 +78,24 @@ public class TokenController {
 
     @PostMapping("/token")
     public ResponseEntity<?> token(
-            @RequestParam("username") String username,
-            @RequestParam("password") String password,
-            @RequestParam("grant_type") String grantType) {
+            @RequestParam("username")
+            @NotBlank(message = "Username is required")
+            @Size(max = MAX_USERNAME_LENGTH, message = "Username too long")
+            String username,
 
-        logger.info("Authentication attempt for user: {}", username);
+            @RequestParam("password")
+            @NotBlank(message = "Password is required")
+            @Size(max = MAX_PASSWORD_LENGTH, message = "Password too long")
+            String password,
+
+            @RequestParam("grant_type")
+            @NotBlank(message = "Grant type is required")
+            @Size(max = MAX_GRANT_TYPE_LENGTH, message = "Grant type too long")
+            String grantType) {
+
+        // FIX: Sanitizar username para prevenir log injection
+        String sanitizedUsername = username.replaceAll("[\n\r\t]", "_");
+        logger.info("Authentication attempt for user: {}", sanitizedUsername);
 
         if (!"password".equals(grantType)) {
             logger.warn("Unsupported grant type requested: {}", grantType);
@@ -113,7 +136,7 @@ public class TokenController {
                 .sign(Algorithm.HMAC256(secret));
 
             logger.info("Token generated successfully for user: {} with {} authorities",
-                       username, authorities.size());
+                       sanitizedUsername, authorities.size());
 
             // Resposta no formato OAuth2
             Map<String, Object> response = new HashMap<>();
@@ -125,13 +148,13 @@ public class TokenController {
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
-            logger.warn("Authentication failed for user: {} - Invalid credentials", username);
+            logger.warn("Authentication failed for user: {} - Invalid credentials", sanitizedUsername);
             Map<String, String> error = new HashMap<>();
             error.put("error", "invalid_grant");
             error.put("error_description", "Usuário ou senha inválida");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
-            logger.error("Unexpected error during authentication for user: {}", username, e);
+            logger.error("Unexpected error during authentication for user: {}", sanitizedUsername, e);
             Map<String, String> error = new HashMap<>();
             error.put("error", "server_error");
             error.put("error_description", "Erro interno do servidor");
