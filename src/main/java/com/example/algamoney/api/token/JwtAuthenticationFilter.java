@@ -35,18 +35,23 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
-    @Value("${algamoney.jwt.secret}")
-    private String secret;
-
-    @Value("${algamoney.jwt.issuer}")
-    private String issuer;
-
-    @Value("${algamoney.jwt.audience}")
-    private String audience;
-
     private static final String HEADER = "Authorization";
     private static final String PREFIX = "Bearer ";
+
+    // PERFORMANCE: Reusar Algorithm object ao invés de recriar a cada request
+    private final Algorithm algorithm;
+    private final String issuer;
+    private final String audience;
+
+    // FIX: Constructor injection para otimizar criação do Algorithm
+    public JwtAuthenticationFilter(
+            @Value("${algamoney.jwt.secret}") String secret,
+            @Value("${algamoney.jwt.issuer}") String issuer,
+            @Value("${algamoney.jwt.audience}") String audience) {
+        this.algorithm = Algorithm.HMAC256(secret);
+        this.issuer = issuer;
+        this.audience = audience;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -63,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // Verificar e decodificar o token com validação de issuer e audience
-            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret))
+            DecodedJWT decodedJWT = JWT.require(algorithm)
                 .withIssuer(issuer)
                 .withAudience(audience)
                 .build()

@@ -58,7 +58,7 @@ public class TokenController {
 
     // FIX: Constructor injection com final fields
     private final AuthenticationManager authenticationManager;
-    private final String secret;
+    private final Algorithm algorithm; // PERFORMANCE: Reusar ao invés de recriar
     private final long expirationTime;
     private final String issuer;
     private final String audience;
@@ -70,7 +70,7 @@ public class TokenController {
             @Value("${algamoney.jwt.issuer}") String issuer,
             @Value("${algamoney.jwt.audience}") String audience) {
         this.authenticationManager = authenticationManager;
-        this.secret = secret;
+        this.algorithm = Algorithm.HMAC256(secret); // Criar uma vez no construtor
         this.expirationTime = expirationTime;
         this.issuer = issuer;
         this.audience = audience;
@@ -133,7 +133,7 @@ public class TokenController {
                 .withClaim("nome", nomeUsuario)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
-                .sign(Algorithm.HMAC256(secret));
+                .sign(algorithm);
 
             logger.info("Token generated successfully for user: {} with {} authorities",
                        sanitizedUsername, authorities.size());

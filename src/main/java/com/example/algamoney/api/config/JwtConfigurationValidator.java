@@ -55,19 +55,9 @@ public class JwtConfigurationValidator {
     public void validateJwtConfiguration() {
         logger.info("Validating JWT configuration for profile: {}", activeProfile);
 
-        // FIX: Validar que perfil 'dev' não está ativo em produção
-        // Detectar produção pela ausência de profiles típicos de desenvolvimento
-        boolean isProductionEnvironment = !activeProfile.contains("dev") &&
-                                         !activeProfile.contains("local") &&
-                                         !activeProfile.contains("test") &&
-                                         !activeProfile.equals("default");
-
-        if (activeProfile.contains("dev") && isProductionEnvironment) {
-            String errorMsg = "CRITICAL SECURITY ERROR: Development profile detected in production environment! " +
-                            "Profile '" + activeProfile + "' should NEVER be used in production. " +
-                            "Remove 'dev' profile or set proper production profile.";
-            logger.error(errorMsg);
-            throw new IllegalStateException(errorMsg);
+        // FIX: Alertar se perfil 'dev' está ativo (pode ser acidental em produção)
+        if (activeProfile.contains("dev")) {
+            logger.warn("⚠️  Development profile is active. Do NOT use in production!");
         }
 
         // Validar que o secret não está vazio
@@ -90,9 +80,24 @@ public class JwtConfigurationValidator {
         }
 
         // FIX: Validar secret contra valor conhecido do application-dev.properties
+        // Hardcoded dev secret for validation - matches application-dev.properties
+        // This is intentional to prevent accidental production use of version-controlled secret
         String knownDevSecret = "YMkBXW7Iicvdg/VIVqcUc7ifNntf1mpl0V0FGUDOlEJ4SVLGPo6fpQ2w9YwjirwleoB/6CbNlgUwvDTgkwPMHw==";
-        if (jwtSecret.equals(knownDevSecret)) {
-            String errorMsg = "CRITICAL SECURITY ERROR: Using development JWT secret in production! " +
+
+        // Fail if using known dev secret outside dev profile
+        if (jwtSecret.equals(knownDevSecret) && !activeProfile.contains("dev")) {
+            String errorMsg = "CRITICAL SECURITY ERROR: Using development JWT secret in non-dev profile '" + activeProfile + "'! " +
+                            "This secret is version-controlled and publicly known. " +
+                            "Set JWT_SECRET environment variable with a unique production secret. " +
+                            "Generate with: openssl rand -base64 64";
+            logger.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+
+        // Also fail if using dev secret in any profile that looks like production
+        if (jwtSecret.equals(knownDevSecret) &&
+            (activeProfile.contains("prod") || activeProfile.contains("production"))) {
+            String errorMsg = "CRITICAL SECURITY ERROR: Using development JWT secret in production profile! " +
                             "This secret is version-controlled and publicly known. " +
                             "Set JWT_SECRET environment variable with a unique production secret. " +
                             "Generate with: openssl rand -base64 64";
