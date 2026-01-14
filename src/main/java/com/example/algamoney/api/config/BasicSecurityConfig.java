@@ -1,5 +1,6 @@
 package com.example.algamoney.api.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -20,6 +21,9 @@ import com.example.algamoney.api.token.JwtAuthenticationFilter;
 @EnableWebSecurity
 public class BasicSecurityConfig {
 
+	@Autowired
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
@@ -27,7 +31,8 @@ public class BasicSecurityConfig {
 				.requestMatchers("/oauth/token").permitAll() // Permitir acesso ao endpoint de token
 				.anyRequest().authenticated()
 			)
-			.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // Adicionar filtro JWT
+			// FIX: Injetar filtro JWT ao invés de instanciar com 'new'
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 			// httpBasic desabilitado para permitir OAuth2 token endpoint funcionar
 			.sessionManagement(session -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import jakarta.servlet.FilterChain;
@@ -20,11 +23,23 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Filtro para validar JWT tokens em cada requisição
- * Extrai o token do header Authorization e valida usando a mesma secret key
+ * Extrai o token do header Authorization e valida usando a secret key configurada
+ *
+ * SECURITY: Este filtro é um Spring Component para permitir injeção de dependências
+ * O secret do JWT é injetado via @Value do application.properties
  */
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String SECRET = "algaworks";
+    @Value("${algamoney.jwt.secret}")
+    private String secret;
+
+    @Value("${algamoney.jwt.issuer}")
+    private String issuer;
+
+    @Value("${algamoney.jwt.audience}")
+    private String audience;
+
     private static final String HEADER = "Authorization";
     private static final String PREFIX = "Bearer ";
 
@@ -42,13 +57,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.replace(PREFIX, "");
 
         try {
-            // Verificar e decodificar o token
-            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(SECRET))
+            // Verificar e decodificar o token com validação de issuer e audience
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret))
+                .withIssuer(issuer)
+                .withAudience(audience)
                 .build()
                 .verify(token);
 
             String username = decodedJWT.getSubject();
+
+            // FIX: Proteção contra null pointer - se authorities for null, usa array vazio
             String[] authorities = decodedJWT.getClaim("authorities").asArray(String.class);
+            if (authorities == null) {
+                authorities = new String[0];
+                logger.warn("Token for user '{}' has no authorities claim", username);
+            }
 
             // Criar autenticação
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -62,9 +85,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Setar no contexto de segurança
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            logger.debug("JWT authentication successful for user: {}", username);
+
+        } catch (JWTVerificationException e) {
+            // FIX: Log específico para erros de validação JWT
+            // Token inválido, expirado, assinatura incorreta, issuer/audience inválidos, etc.
+            logger.warn("JWT validation failed for request to {}: {}",
+                        request.getRequestURI(), e.getMessage());
+            // Continua sem autenticação - Spring Security bloqueará se a rota exigir auth
         } catch (Exception e) {
-            // Token inválido ou expirado - deixa passar sem autenticação
-            // O Spring Security vai bloquear se a rota exigir autenticação
+            // Log para erros inesperados
+            logger.error("Unexpected error during JWT validation for request to {}",
+                        request.getRequestURI(), e);
         }
 
         chain.doFilter(request, response);
