@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,27 +37,34 @@ import com.example.algamoney.api.security.UsuarioSistema;
  * - Logging de tentativas de autenticação
  * - Authorities como List em vez de String separada por vírgulas
  * - Nome real do usuário em vez de username/email
+ * - Constructor injection (imutabilidade)
  */
 @RestController
 @RequestMapping("/oauth")
 public class TokenController {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
+    private static final int MILLISECONDS_PER_SECOND = 1000;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    // FIX: Constructor injection com final fields
+    private final AuthenticationManager authenticationManager;
+    private final String secret;
+    private final long expirationTime;
+    private final String issuer;
+    private final String audience;
 
-    @Value("${algamoney.jwt.secret}")
-    private String secret;
-
-    @Value("${algamoney.jwt.expiration-time-ms:1800000}")
-    private long expirationTime;
-
-    @Value("${algamoney.jwt.issuer}")
-    private String issuer;
-
-    @Value("${algamoney.jwt.audience}")
-    private String audience;
+    public TokenController(
+            AuthenticationManager authenticationManager,
+            @Value("${algamoney.jwt.secret}") String secret,
+            @Value("${algamoney.jwt.expiration-time-ms:1800000}") long expirationTime,
+            @Value("${algamoney.jwt.issuer}") String issuer,
+            @Value("${algamoney.jwt.audience}") String audience) {
+        this.authenticationManager = authenticationManager;
+        this.secret = secret;
+        this.expirationTime = expirationTime;
+        this.issuer = issuer;
+        this.audience = audience;
+    }
 
     @PostMapping("/token")
     public ResponseEntity<?> token(
@@ -82,12 +88,12 @@ public class TokenController {
                 new UsernamePasswordAuthenticationToken(username, password)
             );
 
-            // FIX: Extrair authorities como List diretamente, não como String
+            // Extrair authorities como List diretamente
             List<String> authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-            // FIX: Obter nome real do usuário em vez de username/email
+            // Obter nome real do usuário
             String nomeUsuario = username; // fallback
             if (authentication.getPrincipal() instanceof UsuarioSistema) {
                 UsuarioSistema usuarioSistema = (UsuarioSistema) authentication.getPrincipal();
@@ -100,8 +106,8 @@ public class TokenController {
                 .withAudience(audience)
                 .withSubject(username)
                 .withClaim("user_name", username)
-                .withClaim("authorities", authorities) // FIX: Direto como List, não String
-                .withClaim("nome", nomeUsuario) // FIX: Nome real do usuário
+                .withClaim("authorities", authorities)
+                .withClaim("nome", nomeUsuario)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .sign(Algorithm.HMAC256(secret));
@@ -113,7 +119,7 @@ public class TokenController {
             Map<String, Object> response = new HashMap<>();
             response.put("access_token", token);
             response.put("token_type", "bearer");
-            response.put("expires_in", expirationTime / 1000); // em segundos
+            response.put("expires_in", expirationTime / MILLISECONDS_PER_SECOND);
             response.put("scope", "read write");
 
             return ResponseEntity.ok(response);
